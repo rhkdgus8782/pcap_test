@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <netinet/ether.h>
-#include <netinet/ip.h>
 #define SIZE_ETHERNET 14
 
 struct in_addr1 {
@@ -131,8 +130,8 @@ struct in_addr1 {
 			//for(i = 0; i < 32; i++) {
 				printf("%s\n", ether_ntoa(ethernet->ether_dhost));
 			//}
-			printf("\nip.sip: %lu\n", ip->ip_src.s_addr);
-			printf("ip.dip: %lu\n", ip->ip_dst.s_addr);
+			printf("\nip.sip: %lu\n", inet_ntoa(ip->ip_src.s_addr));
+			printf("ip.dip: %lu\n", inet_ntoa(ip->ip_dst.s_addr));
 		}
 		/* And close the session */		
 		pcap_close(handle);
