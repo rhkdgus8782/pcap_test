@@ -3,10 +3,10 @@
 #include <arpa/inet.h>
 #include <netinet/ether.h>
 #define SIZE_ETHERNET 14
-
+/*
 struct in_addr1 {
 	u_long s_addr;
-};
+};*/
 
 /* Ethernet addresses are 6 bytes */
 #define ETHER_ADDR_LEN   6
@@ -32,7 +32,7 @@ struct in_addr1 {
       u_char ip_ttl;      /* time to live */
       u_char ip_p;      /* protocol */
       u_short ip_sum;      /* checksum */
-      struct in_addr1 ip_src,ip_dst; /* source and dest address */
+      struct in_addr ip_src,ip_dst; /* source and dest address */
    };
    #define IP_HL(ip)      (((ip)->ip_vhl) & 0x0f)
    #define IP_V(ip)      (((ip)->ip_vhl) >> 4)
@@ -111,16 +111,19 @@ struct in_addr1 {
 		}
 		/* Grab a packet */
 		int result;
-		while(result = pcap_next_ex(handle, &header, &packet) >= 0) {
+		while(1){
+			result = pcap_next_ex(handle, &header, &packet);
+			if(result < 1)
+				continue;
 			if(result  == 1) {
 				printf("Packet Captured\n");
-			} else if(result == 0) {
-				printf("Packet Timeout Expired\n");		
-			}
+			}// else if(result == 0) {
+			//	printf("Packet Timeout Expired\n");		
+			//}
 			/* Print its length */
 			printf("Jacked a packet with length of [%d]\n", header->len);
 			ethernet = (struct sniff_ethernet*)(packet);
-			ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
+			//ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
 			int i = 0;
 			printf("eth.smac: ");
 			//for(i = 0; i < 32; i++) {
@@ -130,8 +133,11 @@ struct in_addr1 {
 			//for(i = 0; i < 32; i++) {
 				printf("%s\n", ether_ntoa(ethernet->ether_dhost));
 			//}
-			printf("\nip.sip: %lu\n", inet_ntoa(ip->ip_src.s_addr));
-			printf("ip.dip: %lu\n", inet_ntoa(ip->ip_dst.s_addr));
+			if(ethernet->ether_type != 0x0008)
+				continue;
+			ip = (struct sniff_ip*)(packet+SIZE_ETHERNET);
+			printf("\nip.sip: %s\n", inet_ntoa(ip->ip_src));
+			printf("ip.dip: %s\n", inet_ntoa(ip->ip_dst));
 		}
 		/* And close the session */		
 		pcap_close(handle);
