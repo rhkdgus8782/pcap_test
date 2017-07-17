@@ -143,6 +143,12 @@ struct in_addr1 {
 			size_tcp = TH_OFF(tcp) * 4;
 			printf("tcp.sport: %d\n", ntohs(tcp->th_sport));
 			printf("tcp.dport: %d\n", ntohs(tcp->th_dport));
+			payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+			for(int i = 1; i < ntohs(ip->ip_len) - (size_ip + size_tcp); i++) {
+				printf("%02x ", payload[i - 1]);
+				if(i % 8 == 0) printf("  ");
+				if(i % 16 == 0) printf("\n");
+			}
 		}
 		/* And close the session */
 		pcap_close(handle);
