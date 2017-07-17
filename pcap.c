@@ -136,10 +136,15 @@ struct in_addr1 {
 			if(ethernet->ether_type != 0x0008)
 				continue;
 			ip = (struct sniff_ip*)(packet+SIZE_ETHERNET);
-			printf("\nip.sip: %s\n", inet_ntoa(ip->ip_src));
+			size_ip = IP_HL(ip) * 4;
+			printf("ip.sip: %s\n", inet_ntoa(ip->ip_src));
 			printf("ip.dip: %s\n", inet_ntoa(ip->ip_dst));
+			tcp = (struct sniff_tcp*)(packet+SIZE_ETHERNET + size_ip);
+			size_tcp = TH_OFF(tcp) * 4;
+			printf("tcp.sport: %d\n", ntohs(tcp->th_sport));
+			printf("tcp.dport: %d\n", ntohs(tcp->th_dport));
 		}
-		/* And close the session */		
+		/* And close the session */
 		pcap_close(handle);
 		return(0);
 	 }
